@@ -1,0 +1,23 @@
+{
+  "name": "kuaukutsu/yii2-dependencies",
+  "description": "Generate the dependencies file (json) for Grunt, Webpack",
+  "keywords": ["yii2", "extension", "command", "generator", "dependencies", "grunt", "webpack"],
+  "homepage": "https://github.com/kuaukutsu/yii2-dependencies",
+  "type": "yii2-extension",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dmitriy Krivopalov",
+      "email": "dimarik82@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "yiisoft/yii2": "~2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "kuaukutsu\\dependencies\\": ""
+    }
+  }
+}
