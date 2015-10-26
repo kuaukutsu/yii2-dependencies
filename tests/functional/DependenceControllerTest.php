@@ -262,16 +262,31 @@ EOL;
         $dependenceFile = $this->testDependenceConfigPath . DIRECTORY_SEPARATOR . 'test.json';
         $this->assertTrue(file_exists($dependenceFile), 'Unable to create output dependence file!');
 
+        $dependenceFileJs = $this->testDependenceConfigPath . DIRECTORY_SEPARATOR . 'test-js.json';
+        $this->assertTrue(file_exists($dependenceFileJs), 'Unable to create output js dependence file!');
+
+        $dependenceFileCss = $this->testDependenceConfigPath . DIRECTORY_SEPARATOR . 'test-css.json';
+        $this->assertTrue(file_exists($dependenceFileCss), 'Unable to create output css dependence file!');
+
         $dependenceConfig = Json::decode(file_get_contents($dependenceFile));
         $this->assertTrue(is_array($dependenceConfig), 'Output dependence file has incorrect format!');
-        $this->assertCount(4, $dependenceConfig, 'Output bundle config contains wrong bundle count!');
+        $this->assertCount(4, $dependenceConfig, 'Output dependence file contains wrong bundle count!');
+
+        $dependenceJsConfig = Json::decode(file_get_contents($dependenceFileJs));
+        $this->assertTrue(is_array($dependenceJsConfig), 'Output js dependence file has incorrect format!');
+        $this->assertCount(2, $dependenceJsConfig, 'Output js dependence file contains wrong bundle count!');
+
+        $dependenceCssConfig = Json::decode(file_get_contents($dependenceFileCss));
+        $this->assertTrue(is_array($dependenceCssConfig), 'Output css dependence file has incorrect format!');
+        $this->assertCount(2, $dependenceCssConfig, 'Output css dependence file contains wrong bundle count!');
 
         // js
         $jsFileName = $this->testFilePath . DIRECTORY_SEPARATOR . 'js/test_alert.js';
-        $this->assertArraySubset([0 => $jsFileName], $dependenceConfig, 'Source bundle is lost!');
+        $this->assertArraySubset([2 => $jsFileName], $dependenceConfig, 'Source bundle is lost!');
+
         // css
         $cssFileName = $this->testFilePath . DIRECTORY_SEPARATOR . 'css/test_footer.css';
-        $this->assertArraySubset([3 => $cssFileName], $dependenceConfig, 'Source bundle is lost!');
+        $this->assertArraySubset([1 => $cssFileName], $dependenceConfig, 'Source bundle is lost!');
     }
 }
 
