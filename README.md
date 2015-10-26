@@ -100,7 +100,7 @@ The command generates a file named ```dependence.php``` in the current directory
 ```
 You should modify this file and specify which bundles you plan to include in the file dependencies.
 
-With the configuration file, you can run the ```dependence``` command to generate a new files dependencies ```@webroot/all.json``` and ```@webroot/yii.json``` (```dependenceManager['configPath']``` + ```task['name'].json ```):
+With the configuration file, you can run the ```dependence``` command to generate a new files dependencies ```@webroot/all.json``` and ```@webroot/all-js.json``` and ```@webroot/all-css.json``` (```dependenceManager['configPath']``` + ```task['name'].json ```):
 ```bash
 yii dependence dependence.php
 ```
