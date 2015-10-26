@@ -209,7 +209,7 @@ class DependenceController extends AssetController
 
                 $filename = $sourcePath . DIRECTORY_SEPARATOR . $basename;
                 if (file_exists($filename)) {
-                    $this->data[] = $filename;
+                    $this->data[$property][] = $filename;
                 }
             }
         }
@@ -221,9 +221,29 @@ class DependenceController extends AssetController
      */
     protected function doWriteFile($filename, $data)
     {
-        $filename = Yii::getAlias($this->dependenceManager['configPath']) . DIRECTORY_SEPARATOR . $filename . ".json";
-        if (file_put_contents($filename, Json::encode($data)) !== false) {
-            $this->stdout("Data written to a file $filename\n");
+        $dataCommon = [];
+
+        if (isset($data['css']) && count($data['css']) > 0) {
+            $dataCommon = $data['css'];
+            $filenameCss = Yii::getAlias($this->dependenceManager['configPath']) . DIRECTORY_SEPARATOR . $filename . "-css.json";
+            if (file_put_contents($filenameCss, Json::encode($data['css'])) !== false) {
+                $this->stdout("Data written to a file $filenameCss\n");
+            }
+        }
+
+        if (isset($data['js']) && count($data['js']) > 0) {
+            $dataCommon = array_merge($dataCommon, $data['js']);
+            $filenameJs = Yii::getAlias($this->dependenceManager['configPath']) . DIRECTORY_SEPARATOR . $filename . "-js.json";
+            if (file_put_contents($filenameJs, Json::encode($data['js'])) !== false) {
+                $this->stdout("Data written to a file $filenameJs\n");
+            }
+        }
+
+        if (count($dataCommon) > 0) {
+            $filenameCommon = Yii::getAlias($this->dependenceManager['configPath']) . DIRECTORY_SEPARATOR . $filename . ".json";
+            if (file_put_contents($filenameCommon, Json::encode($dataCommon)) !== false) {
+                $this->stdout("Data written to a file $filenameCommon\n");
+            }
         }
     }
 
