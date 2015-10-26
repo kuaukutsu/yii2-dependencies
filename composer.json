@@ -5,6 +5,7 @@
   "homepage": "https://github.com/kuaukutsu/yii2-dependencies",
   "type": "yii2-extension",
   "license": "MIT",
+  "minimum-stability": "dev",
   "authors": [
     {
       "name": "Dmitriy Krivopalov",
