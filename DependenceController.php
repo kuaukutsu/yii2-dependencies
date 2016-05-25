@@ -3,11 +3,16 @@
 namespace kuaukutsu\dependencies;
 
 use Yii;
+use yii\helpers\FileHelper;
 use yii\helpers\Json;
 use yii\helpers\Console;
 use yii\console\Exception;
 use yii\console\controllers\AssetController;
 
+/**
+ * Class DependenceController
+ * @package kuaukutsu\dependencies
+ */
 class DependenceController extends AssetController
 {
     /**
@@ -102,6 +107,42 @@ class DependenceController extends AssetController
         // exclude bundle
         if (count($excludeList) > 0) {
             $this->bundles = array_diff($this->bundles, $excludeList);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function loadBundles($bundles)
+    {
+        $this->stdout("Collecting source bundles information...\n");
+
+        $am = $this->getAssetManager();
+        $result = [];
+        foreach ($bundles as $name) {
+            $bundle = $am->getBundle($name);
+            $this->loadDependency($bundle, $result);
+            $result[$name] = $bundle;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function loadDependency($bundle, &$result)
+    {
+        $am = $this->getAssetManager();
+        foreach ($bundle->depends as $name) {
+            if (!isset($result[$name])) {
+                $dependencyBundle = $am->getBundle($name);
+                //$result[$name] = false;
+                $this->loadDependency($dependencyBundle, $result);
+                $result[$name] = $dependencyBundle;
+            } elseif (empty($result[$name])) {
+                throw new Exception("A circular dependency is detected for bundle '{$name}'");
+            }
         }
     }
 
@@ -201,16 +242,13 @@ class DependenceController extends AssetController
             $sourcePath = ($bundle->sourcePath === null) ? $bundle->basePath : $bundle->sourcePath;
             foreach($bundle->{$property} as $element) {
 
-                $basename = str_replace('.min', '', $element);
                 // exclude file
-                if (count($exclude) > 0 && in_array($basename, $exclude)) {
+                if (count($exclude) > 0 && in_array($element, $exclude)) {
                     continue;
                 }
 
-                $filename = $sourcePath . DIRECTORY_SEPARATOR . $basename;
-                if (file_exists($filename)) {
-                    $this->data[$property][] = $filename;
-                }
+                $this->data[$property][] = FileHelper::normalizePath($sourcePath . DIRECTORY_SEPARATOR . $element);
+
             }
         }
     }
@@ -221,10 +259,7 @@ class DependenceController extends AssetController
      */
     protected function doWriteFile($filename, $data)
     {
-        $dataCommon = [];
-
         if (isset($data['css']) && count($data['css']) > 0) {
-            $dataCommon = $data['css'];
             $filenameCss = Yii::getAlias($this->dependenceManager['configPath']) . DIRECTORY_SEPARATOR . $filename . "-css.json";
             if (file_put_contents($filenameCss, Json::encode($data['css'])) !== false) {
                 $this->stdout("Data written to a file $filenameCss\n");
@@ -232,17 +267,9 @@ class DependenceController extends AssetController
         }
 
         if (isset($data['js']) && count($data['js']) > 0) {
-            $dataCommon = array_merge($dataCommon, $data['js']);
             $filenameJs = Yii::getAlias($this->dependenceManager['configPath']) . DIRECTORY_SEPARATOR . $filename . "-js.json";
             if (file_put_contents($filenameJs, Json::encode($data['js'])) !== false) {
                 $this->stdout("Data written to a file $filenameJs\n");
-            }
-        }
-
-        if (count($dataCommon) > 0) {
-            $filenameCommon = Yii::getAlias($this->dependenceManager['configPath']) . DIRECTORY_SEPARATOR . $filename . ".json";
-            if (file_put_contents($filenameCommon, Json::encode($dataCommon)) !== false) {
-                $this->stdout("Data written to a file $filenameCommon\n");
             }
         }
     }
